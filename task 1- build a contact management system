@@ -1,0 +1,138 @@
+#Importing the modules
+import tkinter
+import tkinter.ttk as ttk
+from tkinter import *
+import sqlite3
+import tkinter.messagebox as tkMessageBox
+#Function for exiting the system
+def Exit():
+    O = tkinter.messagebox.askyesno("Contact Management System", "Do you want to exit the system")
+    if O > 0:
+        root.destroy()
+    return
+#Function for resetting the values
+def Reset():
+    f_name.set("")
+    m_name.set("")
+    l_name.set("")
+    gender.set("")
+    age.set("")
+    home_address.set("")
+    phone_number.set("")
+    # For creating the database and the table
+def Database():
+    connectn = sqlite3.connect("contactdata.db")
+    cursor = connectn.cursor()
+    cursor.execute("CREATE TABLE IF NOT EXISTS `contactinformation` (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, first_name TEXT, middle_name TEXT, last_name TEXT, gender TEXT, age TEXT, home_address TEXT, phone_number TEXT)")
+    cursor.execute("SELECT * FROM `contactinformation` ORDER BY `last_name` ASC")
+    fetchinfo = cursor.fetchall()
+    for data in fetchinfo:
+        tree.insert('', 'end', values=(data))
+    cursor.close()
+    connectn.close()
+    #Insert query for inserting the value in database Table
+def Submit():
+    if f_name.get() == "" or m_name.get() == "" or l_name.get() == "" or gender.get() == "" or age.get() == "" or home_address.get() == "" or phone_number.get() == "":
+        msgg = tkMessageBox.showwarning('', 'Please Complete All the Fields', icon="warning")
+    else:
+        tree.delete(*tree.get_children())
+    connectn = sqlite3.connect("contactdata.db")
+    cursor = connectn.cursor()
+
+    cursor.execute("INSERT INTO `contactinformation` (first_name, middle_name, last_name, gender, age, home_address, phone_number ) VALUES(?, ?, ?, ?, ?, ?, ?)", (str(f_name.get()), str(m_name.get()), str(l_name.get()), str(gender.get()), int(age.get()), str(home_address.get()),
+    int(phone_number.get())))
+
+    connectn.commit()
+    cursor.execute("SELECT * FROM `contactinformation` ORDER BY `last_name` ASC")
+    fetchinfo = cursor.fetchall()
+
+    for data in fetchinfo:
+        tree.insert('', 'end', values=(data))
+    cursor.close()
+    connectn.close()
+    f_name.set("")
+    m_name.set("")
+    l_name.set("")
+    gender.set("")
+    age.set("")
+    home_address.set("")
+    phone_number.set("")
+    #For creating the frame, labels, text entry, and button for add new contact form window
+def MyNewContact():
+    global opennewwindow
+    f_name.set("")
+    m_name.set("")
+    l_name.set("")
+    gender.set("")
+    age.set("")
+    home_address.set("")
+    phone_number.set("")
+
+    Opennewwindow = Toplevel()
+    Opennewwindow.title("Contact Details")
+    Opennewwindow.resizable(0, 0)
+    Opennewwindow.geometry("500x500+0+0")
+    if 'UpdateWindow' in globals():
+        UpdateWindow.destroy()
+
+#############Frames####################
+    FormTitle = Frame(Opennewwindow)
+    FormTitle.pack(side=TOP)
+    ContactForm = Frame(Opennewwindow)
+    ContactForm.pack(side=TOP, pady=10)
+    RadioGroup = Frame(ContactForm)
+    Male = Radiobutton(RadioGroup, text="Male", variable=gender, value="Male", font=('Calibri', 14)).pack(side=LEFT)
+    Female = Radiobutton(RadioGroup, text="Female", variable=gender, value="Female", font=('Calibri', 14)).pack(side=LEFT)
+    # ===================LABELS==============================
+    label_title = Label(FormTitle, text="Adding New Contacts", bd=12,  fg="black", bg="Lightgreen",
+    font=("Calibri", 15, "bold"), pady=2)
+    label_title.pack(fill=X)
+    label_FirstName = Label(ContactForm, text="First Name", font=('Calibri', 14), bd=5)
+    label_FirstName.grid(row=0, sticky=W)
+
+    label_MiddleName = Label(ContactForm, text="Middle Name", font=('Calibri', 14), bd=5)
+    label_MiddleName.grid(row=1, sticky=W)
+
+    label_LastName = Label(ContactForm, text="Last Name", font=('Calibri', 14), bd=5)
+    label_LastName.grid(row=2, sticky=W)
+
+    label_Gender = Label(ContactForm, text="Gender", font=('Calibri', 14), bd=5)
+    label_Gender.grid(row=3, sticky=W)
+
+    label_Age = Label(ContactForm, text="Age", font=('Calibri', 14), bd=5)
+    label_Age.grid(row=4, sticky=W)
+
+    label_HomeAddress = Label(ContactForm, text="Home Address", font=('Calibri', 14), bd=5)
+    label_HomeAddress.grid(row=5, sticky=W)
+
+    label_PhoneNumber = Label(ContactForm, text="Phone Number", font=('Calibri', 14), bd=5)
+    label_PhoneNumber.grid(row=6, sticky=W)
+
+
+
+# ===================ENTRY===============================
+    FirstName = Entry(ContactForm, textvariable=f_name, font=('Calibri', 14, 'bold'), bd=3, width=20, justify='left')
+    FirstName.grid(row=0, column=1)
+
+    MiddleName = Entry(ContactForm, textvariable=m_name, font=('Calibri', 14, 'bold'), bd=3, width=20, justify='left')
+    MiddleName.grid(row=1, column=1)
+
+    LastName = Entry(ContactForm, textvariable=l_name, font=('Calibri', 14, 'bold'), bd=3, width=20, justify='left')
+    LastName.grid(row=2, column=1)
+
+    RadioGroup.grid(row=3, column=1)
+
+    Age = Entry(ContactForm, textvariable=age, font=('Calibri', 14, 'bold'), bd=3, width=20, justify='left')
+    Age.grid(row=4, column=1)
+
+    HomeAddress = Entry(ContactForm, textvariable=home_address, font=('Calibri', 14, 'bold'), bd=3, width=20, justify='left')
+    HomeAddress.grid(row=5, column=1)
+
+    PhoneNumber = Entry(ContactForm, textvariable=phone_number, font=('Calibri', 14, 'bold'), bd=3, width=20, justify='left')
+    PhoneNumber.grid(row=6, column=1)
+
+
+# ==================BUTTONS==============================
+    ButtonAddContact = Button(ContactForm, text='Please Save', bd=5, font=('Calibri', 12, 'bold'), fg="black",
+    bg="lightgreen", command=Submit)
+    ButtonAddContact.grid(row=7, columnspan=2, pady=10)
